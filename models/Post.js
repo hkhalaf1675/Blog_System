@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false,
         },
         postStatus: {
-            type: Sequelize.STRING,
+            type: Sequelize.ENUM('draft', 'published', 'unpublished'),
             allowNull: false,
         },
         coverImageUrl: {

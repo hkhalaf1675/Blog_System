@@ -10,7 +10,8 @@ router.get('/api/user-authorize-test',checkUserAuthorization,(req,res) => {
     res.status(200).send('done from user authorization');
 });
 router.get('/api/author-authorize-test',checkAuthorAuthorization,(req,res) => {
-    res.status(200).send('done from author authorization ');
+    console.log(`next middleware : ${req.authorId}`);
+    res.status(201).json(req.authorId);
 });
 
 module.exports = router;

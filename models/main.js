@@ -15,6 +15,7 @@ db.User = require('./User')(sequelize,Sequelize);
 db.Post = require('./Post')(sequelize,Sequelize);
 db.Category = require('./Category')(sequelize,Sequelize);
 db.SavedPostsList = require('./SavedPostsList')(sequelize,Sequelize);
+db.ListPosts = require('./ListPosts')(sequelize, Sequelize);
 
 // relation between models
 // -- relation between User{one} and Post{many}
@@ -22,13 +23,17 @@ db.User.hasMany(db.Post, {as: 'posts'});
 db.Post.belongsTo(db.User);
 
 // -- relation between Post{many} and Category{many}
-db.Category.belongsToMany(db.Post, {through : 'PostCategories'});
+db.Post.belongsToMany(db.Category, {through: 'PostCategories'});
+db.Category.belongsToMany(db.Post, {through: 'PostCategories'});
 
 // -- relation between User{One} and SavedPostsList{many}
 db.User.hasMany(db.SavedPostsList, {as: 'savedPostsLists'});
 db.SavedPostsList.belongsTo(db.User);
 
 // -- relation between Post{many} and SavedPostsList{many}
-db.SavedPostsList.belongsToMany(db.Post, {through: 'SavedListPosts'});
+db.Post.hasMany(db.ListPosts, {as: 'listPosts'});
+db.ListPosts.belongsTo(db.Post);
+db.SavedPostsList.hasMany(db.ListPosts, {as: 'listPosts'});
+db.ListPosts.belongsTo(db.SavedPostsList);
 
 module.exports = db;

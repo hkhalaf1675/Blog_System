@@ -14,8 +14,8 @@ const createJwtToken = (userId,role) => {
         );
 }
 
-// that will return the user if the token is valid
-const checkAuthorization = async(req,res) => {
+// check author authorization
+exports.checkAuthorAuthorization = async(req,res,next) => {
     try {
         if(req.headers.authorization){
             if(req.headers.authorization.startsWith('Bearer')){
@@ -31,7 +31,14 @@ const checkAuthorization = async(req,res) => {
                         res.status(401).send({message: '1 - Authentication credentials are missing or invalid'});
                     }
                     else{
-                        return user;
+                        if(user.isAuthor == true){
+                            req.authorId = user.id;
+                            console.log(req.authorId);
+                            next();
+                        }
+                        else{
+                            res.status(401).send({message: 'Unauthorized User'})
+                        }
                     }
                 }
                 else{
@@ -50,28 +57,40 @@ const checkAuthorization = async(req,res) => {
     }
 }
 
-// check author authorization
-exports.checkAuthorAuthorization = async(req,res,next) => {
-    try {
-        const user = await checkAuthorization(req,res);
-        if(user.isAuthor == true){
-            next();
-        }
-        else{
-            res.status(401).send({message: 'Not Authorized User'});
-        }
-    } catch (error) {
-        res.status(401).send({message: 'Authentication credentials are missing or invalid'});
-    }
-}
-
 // check user authorization
 exports.checkUserAuthorization = async(req,res,next) => {
     try {
-        const user = await checkAuthorization(req,res);
-        next();
+        if(req.headers.authorization){
+            if(req.headers.authorization.startsWith('Bearer')){
+                const token = req.headers.authorization.split(' ')[1];
+                if(token){
+                    // check if the token is valid or not
+                    const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY);
+
+                    // get the user by userId
+                    const user = await db.User.findByPk(decoded.userId);
+                    
+                    if(user === null){
+                        res.status(401).send({message: '1 - Authentication credentials are missing or invalid'});
+                    }
+                    else{
+                        req.userId = user.id;
+                        next();
+                    }
+                }
+                else{
+                    res.status(401).send({message: '2 - Authentication credentials are missing or invalid'});
+                }
+            }
+            else{
+                res.status(401).send({message: '3 - Authentication credentials are missing or invalid'});
+            }
+        }
+        else{
+            res.status(401).send({message: '4 - Authentication credentials are missing or invalid'});
+        }
     } catch (error) {
-        res.status(401).send({message: 'Authentication credentials are missing or invalid'});
+        res.status(401).send({message: '5 - Authentication credentials are missing or invalid'});
     }
 }
 

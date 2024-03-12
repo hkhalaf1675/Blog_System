@@ -18,6 +18,12 @@ db.sequelize.sync()
 const authRouter = require('./routes/AuthRouter');
 app.use(authRouter);
 
+const authorRouter = require('./routes/AuthorRouter');
+app.use(authorRouter);
+
+const userRouter = require('./routes/UserRouter');
+app.use(userRouter);
+
 app.listen(process.env.PORT, () => {
     console.log("Server is running");
 })
